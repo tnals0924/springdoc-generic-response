@@ -1,5 +1,6 @@
 plugins {
     kotlin("jvm")
+    kotlin("plugin.spring")
 }
 
 dependencies {
@@ -9,6 +10,7 @@ dependencies {
     testImplementation(kotlin("test"))
     testImplementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.7.0")
     testImplementation("org.springframework.boot:spring-boot-autoconfigure:3.4.0")
+    implementation(kotlin("stdlib"))
 }
 
 kotlin {
@@ -17,4 +19,7 @@ kotlin {
 
 tasks.test {
     useJUnitPlatform()
+}
+repositories {
+    mavenCentral()
 }

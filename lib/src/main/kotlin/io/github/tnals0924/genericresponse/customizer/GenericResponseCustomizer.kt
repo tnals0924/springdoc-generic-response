@@ -15,9 +15,9 @@ class GenericResponseCustomizer(
     private val parser = FlattenedTypeNameParser(wrapperInfos.map { it.schemaName })
     private val rewriter = GenericSchemaRewriter(wrapperInfos.associateBy { it.schemaName })
 
-    @Suppress("UNCHECKED_CAST")
     override fun customise(openApi: OpenAPI) {
-        val schemas = openApi.components?.schemas as? MutableMap<String, Schema<Any>> ?: return
+        @Suppress("UNCHECKED_CAST")
+        val schemas = openApi.components?.schemas as? MutableMap<String, Schema<*>> ?: return
 
         schemas.keys.toList()
             .filter { parser.isGenericFlatName(it) }

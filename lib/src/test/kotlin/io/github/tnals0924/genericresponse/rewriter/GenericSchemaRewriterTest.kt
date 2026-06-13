@@ -1,5 +1,3 @@
-@file:Suppress("UNCHECKED_CAST")
-
 package io.github.tnals0924.genericresponse.rewriter
 
 import io.github.tnals0924.genericresponse.model.GenericWrapperInfo
@@ -27,13 +25,13 @@ class GenericSchemaRewriterTest {
 
     // ---------- helpers ----------
 
-    private fun schema(block: ObjectSchema.() -> Unit = {}): Schema<Any> =
-        ObjectSchema().apply(block) as Schema<Any>
+    private fun schema(block: ObjectSchema.() -> Unit = {}): Schema<*> =
+        ObjectSchema().apply(block)
 
-    private fun ref(ref: String): Schema<Any> =
+    private fun ref(ref: String): Schema<*> =
         Schema<Any>().apply { `$ref` = ref }
 
-    private fun flatSchemas(vararg pairs: Pair<String, Schema<Any>>): MutableMap<String, Schema<Any>> =
+    private fun flatSchemas(vararg pairs: Pair<String, Schema<*>>): MutableMap<String, Schema<*>> =
         mutableMapOf(*pairs)
 
     // ---------- allOf structure ----------
@@ -251,7 +249,7 @@ class GenericSchemaRewriterTest {
 
     // ---------- helper ----------
 
-    private fun rewrite(schemas: MutableMap<String, Schema<Any>>, flatName: String) {
+    private fun rewrite(schemas: MutableMap<String, Schema<*>>, flatName: String) {
         val result = parser.parse(flatName) as ParseResult.Generic
         rewriter.rewrite(schemas, flatName, result)
     }

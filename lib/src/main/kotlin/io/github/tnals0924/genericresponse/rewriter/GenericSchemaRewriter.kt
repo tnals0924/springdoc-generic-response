@@ -10,9 +10,8 @@ class GenericSchemaRewriter(
     private val wrappers: Map<String, GenericWrapperInfo>
 ) {
 
-    @Suppress("UNCHECKED_CAST")
     fun rewrite(
-        schemas: MutableMap<String, Schema<Any>>,
+        schemas: MutableMap<String, Schema<*>>,
         flatName: String,
         parseResult: ParseResult.Generic
     ) {
@@ -26,34 +25,32 @@ class GenericSchemaRewriter(
         rewritten.addExtension("x-generic-base", baseName)
         rewritten.addExtension("x-generic-type-arg", parseResult.typeArg.toTypeArgString())
 
-        schemas[flatName] = rewritten as Schema<Any>
+        schemas[flatName] = rewritten
     }
 
     private fun ensureBaseSchema(
-        schemas: MutableMap<String, Schema<Any>>,
+        schemas: MutableMap<String, Schema<*>>,
         baseName: String,
         wrapper: GenericWrapperInfo,
-        flatSchema: Schema<Any>
+        flatSchema: Schema<*>
     ) {
         if (schemas.containsKey(baseName)) return
 
         val base = ObjectSchema()
         flatSchema.properties?.forEach { (key, value) ->
             if (key != wrapper.dataField) {
-                @Suppress("UNCHECKED_CAST")
-                base.addProperty(key, value as Schema<Any>)
+                base.addProperty(key, value)
             }
         }
         flatSchema.required?.filter { it != wrapper.dataField }?.forEach { base.addRequiredItem(it) }
 
-        @Suppress("UNCHECKED_CAST")
-        schemas[baseName] = base as Schema<Any>
+        schemas[baseName] = base
     }
 
     private fun buildAllOfSchema(
         baseName: String,
         dataField: String,
-        flatSchema: Schema<Any>
+        flatSchema: Schema<*>
     ): ComposedSchema {
         val allOf = ComposedSchema()
         allOf.addAllOfItem(Schema<Any>().apply { `$ref` = "#/components/schemas/$baseName" })
@@ -61,8 +58,7 @@ class GenericSchemaRewriter(
         val dataProp = flatSchema.properties?.get(dataField)
         if (dataProp != null) {
             val dataWrapper = ObjectSchema()
-            @Suppress("UNCHECKED_CAST")
-            dataWrapper.addProperty(dataField, dataProp as Schema<Any>)
+            dataWrapper.addProperty(dataField, dataProp)
             allOf.addAllOfItem(dataWrapper)
         }
         return allOf
