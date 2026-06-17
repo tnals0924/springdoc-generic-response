@@ -87,5 +87,10 @@ publishing {
 }
 
 signing {
+    useInMemoryPgpKeys(
+        project.findProperty("signingKeyId") as String?,
+        project.findProperty("signingKey") as String?,
+        project.findProperty("signingPassword") as String?
+    )
     sign(publishing.publications["mavenKotlin"])
 }

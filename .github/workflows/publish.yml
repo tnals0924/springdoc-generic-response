@@ -19,27 +19,20 @@ jobs:
 
       - uses: gradle/actions/setup-gradle@v4
 
-      - name: Decode GPG secret key
+      - name: Decode GPG key
         run: |
-          echo "${{ secrets.GPG_SECRET_KEY }}" | base64 --decode > ${{ github.workspace }}/secring.gpg
-
-      - name: Inject credentials into Gradle properties
-        run: |
-          mkdir -p ~/.gradle
-          cat >> ~/.gradle/gradle.properties << EOF
-          mavenCentralUsername=${{ secrets.MAVEN_CENTRAL_USERNAME }}
-          mavenCentralPassword=${{ secrets.MAVEN_CENTRAL_PASSWORD }}
-          signing.keyId=${{ secrets.GPG_KEY_ID }}
-          signing.password=${{ secrets.GPG_PASSWORD }}
-          signing.secretKeyRingFile=${{ github.workspace }}/secring.gpg
-          EOF
+          echo "SIGNING_KEY<<EOF" >> $GITHUB_ENV
+          echo "${{ secrets.GPG_SECRET_KEY }}" | base64 --decode >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
 
       - name: Run tests
         run: ./gradlew :lib:test
 
       - name: Publish to Maven Central
         run: ./gradlew :lib:publish
-
-      - name: Cleanup GPG key
-        if: always()
-        run: rm -f ${{ github.workspace }}/secring.gpg
+        env:
+          ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
+          ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
+          ORG_GRADLE_PROJECT_signingKeyId: ${{ secrets.GPG_KEY_ID }}
+          ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.GPG_PASSWORD }}
+          ORG_GRADLE_PROJECT_signingKey: ${{ env.SIGNING_KEY }}
